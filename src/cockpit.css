@@ -1,0 +1,113 @@
+.flight-deck { display: grid; gap: 14px; margin-bottom: 14px; }
+.deck-grid, .deck-details { display: grid; gap: 14px; min-width: 0; }
+.deck-kicker { display: flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: .14em; font-weight: 750; color: #576e57; margin-bottom: 4px; }
+.deck-runway {
+  min-width: 0; padding: 16px; border-radius: 19px; color: #f5f8ee;
+  background: radial-gradient(ellipse at 100% 0%, #365942, #17372b 58%);
+  border: 1px solid #234333;
+}
+.runway-top, .deck-runway-amount, .runway-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.deck-runway .deck-kicker { color: #c5d8bb; }
+.deck-runway h2 { font-size: clamp(20px, 3vw, 25px); line-height: 1.15; font-weight: 700; letter-spacing: -.04em; }
+.runway-date { display: inline-flex; align-items: center; gap: 5px; color: #e4efde; border: 1px solid #ffffff32; background: #ffffff0c; border-radius: 999px; font-size: 12px; font-weight: 650; padding: 6px 9px; white-space: nowrap; }
+.deck-runway-amount { align-items: end; margin: 14px 0 11px; }
+.deck-runway-amount > div { min-width: 0; }
+.deck-runway-amount > div span { color: #c9dacb; font-size: 12px; }
+.deck-runway-amount strong { display: block; font-size: clamp(32px, 6.3vw, 51px); line-height: 1.02; margin-top: 3px; font-weight: 730; font-variant-numeric: tabular-nums; letter-spacing: -.065em; overflow-wrap: anywhere; }
+.runway-badge { display: flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 8px; flex: none; font-size: 10px; font-weight: 700; background: #d8eea223; color: #e0efa9; }
+.runway-badge.warn { background: #fdb79125; color: #ffd2b5; }
+.runway-badge i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.runway-legend { display: flex; align-items: center; gap: 13px; color: #d3e0d1; font-size: 11px; }
+.runway-legend span { display: flex; align-items: center; gap: 5px; }
+.runway-legend i { width: 15px; border-top: 2px solid #dff2a3; }
+.runway-legend span + span i { border-top: 2px dashed #a1b7b1; }
+.runway-chart { height: 155px; margin-top: 3px; min-width: 0; }
+.runway-tooltip { color: #21372b; background: #fbfdf5; border-radius: 10px; padding: 8px 10px; font-size: 12px; min-width: 185px; box-shadow: 0 4px 16px #0b211e33; }
+.runway-tooltip span { display: flex; justify-content: space-between; gap: 9px; }
+.runway-numbers { display: grid; grid-template-columns: 1.15fr 1fr .9fr; gap: 7px; padding-top: 10px; border-top: 1px solid #ffffff30; }
+.runway-numbers dt { font-size: 10px; color: #c8d9ca; }
+.runway-numbers dd { margin-top: 2px; font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.runway-caption { margin-top: 8px; color: #c6d7c8; font-size: 10px; }
+.runway-caption label { min-width: 0; }
+.runway-caption select { max-width: min(49vw, 260px); min-height: 42px; color: #eff8e9; background: #ffffff15; border: 1px solid #ffffff2e; padding: 5px 6px; border-radius: 8px; font-size: 16px; }
+.runway-caption option { color: #162f25; background: white; }
+.runway-empty { margin: 18px 0 7px; display: grid; gap: 12px; justify-items: start; color: #d5e4d3; font-size: 14px; }
+.runway-empty .button { color: var(--green); }
+.deck-coach { padding: 17px; display: flex; flex-direction: column; background: #f3f1e6; border-color: #e9e7d9; min-width: 0; }
+.deck-coach-head { display: flex; gap: 10px; align-items: center; }
+.deck-coach-head > div > span { font-size: 11px; color: #63674f; }
+.deck-coach-icon { width: 42px; height: 42px; border-radius: 12px; background: #e7e7cf; color: #52633c; display: grid; place-items: center; flex: none; }
+.deck-coach h2 { margin-top: 13px; font-size: clamp(21px, 3vw, 28px); letter-spacing: -.045em; line-height: 1.16; }
+.coach-featured-text { color: #414b3d; margin: 8px 0 7px; font-size: 14px; line-height: 1.52; white-space: pre-line; overflow-wrap: anywhere; }
+.coach-featured-actions { margin-top: auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; align-items: center; }
+.coach-featured-actions > span { color: #5d6756; font-size: 11px; }
+.pace-panel, .deck-bills, .quick-sort { padding: 15px; }
+.pace-tabs { width: fit-content; max-width: 100%; margin-top: 10px; }
+.pace-tabs button { min-height: 43px; font-size: 12px; padding-inline: 8px; }
+.pace-row { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(0, .75fr) minmax(0, .95fr) minmax(0, .83fr); gap: 5px; align-items: center; padding: 7px 0; min-height: 53px; font-size: 12px; border-bottom: 1px solid var(--line); }
+.pace-row > :not(:first-child) { text-align: right; overflow-wrap: anywhere; }
+.pace-head { font-size: 10px; font-weight: 700; color: var(--muted); min-height: 33px; }
+.pace-category { display: flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
+.pace-category .category-icon { width: 31px; height: 31px; }
+.pace-reference { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.pace-room { font-weight: 650; color: var(--muted); }
+.pace-room.has-room { color: #315d42; }
+.pace-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 5px; margin-top: 2px; }
+.pace-footer > span, .pace-note { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.pace-note details { margin-top: 3px; }
+.pace-note summary { cursor: pointer; min-height: 30px; padding-top: 7px; }
+.pace-note details p { padding: 2px 0 5px; }
+.deck-bills { align-self: start; }
+.deck-bills ul { margin-top: 8px; }
+.deck-bills li { display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.deck-bills li strong { overflow-wrap: anywhere; }
+.deck-bills li small { display: block; margin-top: 2px; font-size: 11px; }
+.deck-bills li b { white-space: nowrap; }
+.activity-stack { display: grid; gap: 14px; }
+.sort-palette { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.sort-palette button { background: #eef2e9; border: 1px solid #e3e9dd; border-radius: 8px; color: #304f3a; padding: 4px 8px; font-size: 11px; font-weight: 650; min-height: 44px; }
+.sort-palette button.drag-over, .sort-palette button:not(:disabled):hover { background: #d8ebce; border-color: #709877; }
+.sort-transactions { margin-top: 10px; }
+.sort-transaction { display: flex; gap: 4px; border-top: 1px solid var(--line); min-width: 0; }
+.sort-transaction.selected { background: #edf4e8; }
+.sort-grip { display: grid; place-items: center; min-height: 45px; width: 44px; flex: none; touch-action: none; cursor: grab; color: #526959; }
+.sort-grip:active { cursor: grabbing; }
+.sort-select { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 7px; width: 100%; min-width: 0; text-align: left; padding: 5px 6px 5px 0; font-size: 13px; }
+.sort-select strong { overflow-wrap: anywhere; }
+.sort-select small { display: block; }
+.sort-status { color: var(--green); display: flex; align-items: center; gap: 4px; font-size: 12px; margin-top: 7px; }
+.sort-status.error { color: #943f2a; }
+.sort-ghost { position: fixed; z-index: 30; pointer-events: none; transform: translate(8px, 8px); border-radius: 8px; background: #264c37; color: white; padding: 6px 8px; font-size: 12px; box-shadow: 0 3px 12px #1b2c2540; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-order-toolbar, .account-card-top, .account-order-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.account-order-toolbar { margin-bottom: 10px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.account-order-actions > span { font-weight: 700; color: var(--green); margin-right: 4px; }
+@media (max-width: 480px) {
+  .content-overview { padding-top: 19px; }
+  .content-overview .page-heading { margin-bottom: 16px; }
+  .runway-chart { height: 128px; }
+  .deck-runway { padding-block: 14px; }
+  .deck-runway-amount { margin-block: 10px 8px; }
+  .pace-category .category-icon { display: none; }
+  .pace-row { font-size: 11px; }
+  .pace-reference .trend svg { display: none; }
+}
+@media (min-width: 900px) {
+  .deck-grid { grid-template-columns: minmax(0, 1.8fr) minmax(245px, 1fr); }
+  .deck-details { grid-template-columns: minmax(0, 1.8fr) minmax(245px, 1fr); }
+  .deck-runway, .deck-coach, .pace-panel, .deck-bills, .quick-sort { padding: 18px; }
+  .runway-chart { height: 177px; }
+  .coach-featured-text { font-size: 15px; }
+}
+
+.pace-spent small { display: block; font-size: 10px; line-height: 1.25; color: #735627; }
+
+.runway-explanation { color: #d3e0d1; font-size: 12px; margin: -3px 0 10px; }
+.runway-prediction { color: #e1ebd9; font-size: 12px; margin-top: 8px; }
+.runway-method { color: #c3d5c5; font-size: 11px; line-height: 1.45; margin-bottom: 5px; }
+.runway-tooltip small { display: block; color: #53644e; }
+
+.account-payment-note { margin-top: 14px; }
+.account-payment-note p { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 7px; }
+
+.runway-method summary { min-height: 32px; display: flex; align-items: center; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.runway-method p { padding: 0 0 8px; }

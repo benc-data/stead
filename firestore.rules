@@ -1,0 +1,194 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function authorizedGoogleUser() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function emailAllowed(household) {
+      return request.auth.token.email == household.get('primaryEmail', '')
+        || request.auth.token.email == household.get('spouseEmail', '');
+    }
+    function householdMember() {
+      return authorizedGoogleUser()
+        && emailAllowed(get(/databases/$(database)/documents/settings/household).data);
+    }
+    match /settings/household {
+      allow get: if authorizedGoogleUser() && emailAllowed(resource.data);
+    }
+    match /accounts/{id} {
+      allow read: if householdMember();
+    }
+    function categoryAllowed(category) {
+      return category is string && (category in ['Uncategorized', 'Groceries', 'Dining', 'Household Goods', 'Transportation', 'Housing', 'Utilities', 'Shopping', 'Health', 'Entertainment', 'Subscriptions', 'Travel', 'Income', 'Transfer', 'Other']
+        || category in get(/databases/$(database)/documents/settings/categories).data.names);
+    }
+    function builtinCategory(category) {
+      return category.lower().matches('^(uncategorized|groceries|dining|household goods|transportation|housing|utilities|shopping|health|entertainment|subscriptions|travel|income|transfer|other)$');
+    }
+    function splitUnits(parts, index) {
+      return parts.size() <= index ? 0 : parts[index].amountMinor;
+    }
+    function validSplit(part, scale, parent) {
+      let units = part.amountMinor;
+      let memo = part.get('memo', '');
+      return part.keys().hasOnly(['category', 'amount', 'amountMinor', 'memo'])
+        && categoryAllowed(part.category) && units is int
+        && units * parent > 0 && math.abs(units) <= math.abs(parent)
+        && part.amount is number && math.abs(part.amount * scale - units) < 0.00001
+        && memo is string && memo.size() <= 180;
+    }
+    function validSplitAt(parts, index, scale, parent) {
+      return parts.size() <= index || validSplit(parts[index], scale, parent);
+    }
+    function splitTotal(parts) {
+      return splitUnits(parts, 0)
+        + splitUnits(parts, 1)
+        + splitUnits(parts, 2)
+        + splitUnits(parts, 3);
+    }
+    function validNewSplits(data) {
+      let parts = data.splits;
+      let scale = data.get('splitScale', 1);
+      let parent = resource.data.amount;
+      return parts is list && parts.size() <= 4 && parts.size() != 1
+        && data.isSplit == (parts.size() > 0)
+        && (parts.size() == 0 || (
+          scale in [1, 10, 100, 1000, 10000]
+          && math.round(parent * scale) == resource.data.amountMinor
+            && validSplitAt(parts, 0, scale, resource.data.amountMinor)
+          && validSplitAt(parts, 1, scale, resource.data.amountMinor)
+          && validSplitAt(parts, 2, scale, resource.data.amountMinor)
+          && validSplitAt(parts, 3, scale, resource.data.amountMinor)
+          && splitTotal(parts) == resource.data.amountMinor
+        ));
+    }
+    match /transactions/{id} {
+      allow read: if householdMember();
+      allow update: if householdMember()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['category', 'splits', 'isSplit', 'splitScale', 'verifiedByUser', 'needsReview'])
+        && categoryAllowed(request.resource.data.category)
+        && request.resource.data.verifiedByUser == true && request.resource.data.needsReview == false
+        && validNewSplits(request.resource.data);
+    }
+    match /category_actions/{id} {
+      function owned(data) {
+        return householdMember() && data.uid == request.auth.uid;
+      }
+      function validAction(data) {
+        return data.keys().hasOnly(['uid', 'email', 'createdAt', 'state', 'kind', 'data'])
+          && data.email == request.auth.token.email && data.createdAt == request.time
+          && data.state == 'queued' && data.data is map
+          && ((data.kind == 'save' && data.data.keys().hasOnly(['key', 'category', 'splits', 'remember', 'amountMinor', 'quick'])
+                && data.data.key is string && data.data.key.matches('^[a-f0-9]{64}$')
+                && data.data.category is string && data.data.category.size() <= 40
+                && data.data.amountMinor is int
+                && (!('splits' in data.data) || (data.data.splits is list && data.data.splits.size() <= 20)))
+            || (data.kind == 'suggest' && data.data.keys().hasOnly(['keys']) && data.data['keys'] is list
+                && data.data['keys'].size() > 0 && data.data['keys'].size() <= 25)
+            || (data.kind == 'apply' && data.data.keys().hasOnly(['changes']) && data.data.changes is list
+                && data.data.changes.size() > 0 && data.data.changes.size() <= 25));
+      }
+      allow get: if owned(resource.data);
+      allow create: if owned(request.resource.data) && validAction(request.resource.data);
+      allow delete: if owned(resource.data) && resource.data.state in ['done', 'error'];
+    }
+    match /vendor_rules/{id} {
+      allow read: if householdMember();
+      allow create, update: if householdMember()
+        && request.resource.data.keys().hasOnly(['kind', 'pattern', 'category'])
+        && request.resource.data.kind == 'exact'
+        && request.resource.data.pattern is string && request.resource.data.pattern.size() > 0
+        && request.resource.data.pattern.size() <= 180
+        && categoryAllowed(request.resource.data.category);
+    }
+    match /recurring_forecasts/{id} {
+      allow read: if householdMember();
+    }
+    match /settings/sync {
+      allow get: if householdMember();
+    }
+
+    function hasCashAccount(data) {
+      return data.accountId is string && data.accountId.matches('^[a-f0-9]{64}$')
+        && data.currency is string
+        && get(/databases/$(database)/documents/accounts/$(data.accountId)).data.currency == data.currency;
+    }
+    function validMoney(value) {
+      return value is int && value >= 0 && value <= 100000000000;
+    }
+    function validDate(value) {
+      return value is string && value.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+    function validLabel(value) {
+      return value is string && value.size() > 0 && value.size() <= 100;
+    }
+    function validPlan(data) {
+      return data.keys().hasOnly(['label', 'accountId', 'currency', 'amountMinor', 'dueDate', 'kind'])
+        && validLabel(data.label) && validDate(data.dueDate) && validMoney(data.amountMinor)
+        && data.amountMinor > 0 && data.kind in ['expense', 'income'] && hasCashAccount(data);
+    }
+    function validGoal(data) {
+      return data.keys().hasOnly(['label', 'accountId', 'currency', 'targetMinor', 'savedMinor', 'dueDate'])
+        && validLabel(data.label) && validDate(data.dueDate)
+        && validMoney(data.targetMinor) && data.targetMinor > 0 && validMoney(data.savedMinor)
+        && hasCashAccount(data);
+    }
+    match /planned_items/{id} {
+      allow read: if householdMember();
+      allow create: if householdMember() && validPlan(request.resource.data);
+      allow update: if householdMember() && !('matchedTransactionKey' in resource.data)
+        && validPlan(request.resource.data);
+      allow delete: if householdMember() && !('matchedTransactionKey' in resource.data);
+    }
+    match /savings_goals/{id} {
+      allow read, delete: if householdMember();
+      allow create, update: if householdMember() && validGoal(request.resource.data);
+    }
+    match /paycheck_settings/{accountId} {
+      allow read: if householdMember();
+      allow create, update: if householdMember()
+        && request.resource.data.keys().hasOnly(['midmonthMinor', 'monthEndMinor'])
+        && (!('midmonthMinor' in request.resource.data) || validMoney(request.resource.data.midmonthMinor))
+        && (!('monthEndMinor' in request.resource.data) || validMoney(request.resource.data.monthEndMinor))
+        && exists(/databases/$(database)/documents/accounts/$(accountId));
+    }
+    match /settings/accountOrder {
+      allow get: if householdMember();
+      allow create, update: if householdMember()
+        && request.resource.data.keys().hasOnly(['ids'])
+        && request.resource.data.ids is list
+        && request.resource.data.ids.size() <= 100
+        && request.resource.data.ids.toSet().size() == request.resource.data.ids.size();
+    }
+    match /settings/categories {
+      function validAddition(data, previous) {
+        let names = data.names;
+        let keys = data['keys'];
+        let name = names[names.size() - 1];
+        return data.keys().hasOnly(['names', 'keys'])
+          && names is list && keys is list && names.size() > 0 && names.size() <= 100
+          && name is string && name.size() > 0 && name.size() <= 40
+          && name == name.trim() && !name.matches('.*[\\x00-\\x1f\\x7f].*')
+          && !builtinCategory(name) && !(name.lower() in previous.get('keys', []))
+          && names == previous.get('names', []).concat([name])
+          && keys == previous.get('keys', []).concat([name.lower()]);
+      }
+      allow get: if householdMember();
+      allow create: if householdMember() && validAddition(request.resource.data, {});
+      allow update: if householdMember() && validAddition(request.resource.data, resource.data);
+    }
+    match /settings/coach {
+      allow get: if householdMember();
+      allow create, update: if householdMember()
+        && request.resource.data.keys().hasOnly(['enabled', 'note'])
+        && request.resource.data.enabled is bool
+        && request.resource.data.note is string && request.resource.data.note.size() <= 600;
+    }
+    match /settings/coachBrief {
+      allow get: if householdMember();
+    }
+  }
+}

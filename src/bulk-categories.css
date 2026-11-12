@@ -1,0 +1,35 @@
+.batch-bar {
+  position: sticky; top: 0; z-index: 2; margin: 0 0 8px; padding: 8px 11px 9px;
+  background: #eef4e9; border: 1px solid #dce7d7; border-radius: 12px; color: var(--green);
+}
+.batch-heading, .batch-options, .batch-actions { display: flex; align-items: center; gap: 5px 9px; flex-wrap: wrap; }
+.batch-heading { justify-content: space-between; }
+.batch-heading strong { font-size: 13px; }
+.batch-bar .text-button, .batch-bar .checkbox { min-height: 38px; font-size: 12px; }
+.batch-actions { margin: 3px 0 5px; }
+.batch-bar p { font-size: 11px; color: #526252; }
+.batch-transaction { cursor: pointer; grid-template-columns: auto auto minmax(0, 1fr) auto; padding-inline: 4px; }
+.batch-transaction.disabled { cursor: default; opacity: .64; }
+.batch-transaction.selected { background: #edf4e8; }
+.batch-transaction input { width: 17px; height: 17px; accent-color: var(--green); }
+.bulk-review { max-width: 620px; width: min(100% - 18px, 620px); padding: 0; overflow: hidden; }
+.bulk-review[open] { display: flex; }
+.bulk-review form { min-height: 0; min-width: 0; width: 100%; display: flex; flex-direction: column; }
+.bulk-review-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 12px 13px; border-bottom: 1px solid var(--line); }
+.bulk-review-head .icon-button { border: 0; }
+.bulk-review form > .notice { margin: 8px 12px; }
+.bulk-review-loading { display: flex; align-items: center; gap: 8px; padding: 15px; }
+.bulk-review-rows { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0 12px; }
+.bulk-review-row { display: grid; gap: 6px; border-bottom: 1px solid var(--line); padding: 9px 5px; }
+.bulk-review-row.approved { background: #f5f8f0; }
+.bulk-review-row-title { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 7px; font-size: 13px; }
+.bulk-review-row-title strong { display: block; overflow-wrap: anywhere; }
+.bulk-review-row-title small, .bulk-review-source { font-size: 11px; }
+.bulk-review-row-title b { white-space: nowrap; }
+.bulk-review-row-fields { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.bulk-review-row-fields .checkbox { margin-right: 2px; }
+.bulk-review-footer { border-top: 1px solid var(--line); padding: 9px 12px 12px; }
+.bulk-review-footer .editor-actions { margin-top: 0; }
+@media (min-width: 650px) {
+  .batch-transaction { grid-template-columns: auto auto minmax(0, 1fr) minmax(80px, 140px) auto; }
+}

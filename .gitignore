@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.env*
+!.env.example
+.firebase/
+*-debug.log
+functions/.secret.local
+.DS_Store
+.firebaserc
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*serviceAccount*.json
+application_default_credentials.json
+gha-creds-*.json
